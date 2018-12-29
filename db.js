@@ -1,27 +1,31 @@
-//This file is used for connecting node to mongoose
-
 const MongoClient = require("mongodb").MongoClient;
 const ObjectID = require("mongodb").ObjectID;
+// name of our database
 const dbname = "todo_mongodb";
+// location of where our mongoDB database is located
 const url = "mongodb://localhost:27017";
-const mongoOptions = {
-  userNewUrlPraser: true
-};
+// Options for mongoDB
+const mongoOptions = { useNewUrlParser: true };
+
 const state = {
   db: null
 };
 
 const connect = cb => {
-  if (state.db) {
-    cb();
-  } else {
+  // if state is not NULL
+  // Means we have connection already, call our CB
+  if (state.db) cb();
+  else {
+    // attempt to get database connection
     MongoClient.connect(
       url,
       mongoOptions,
       (err, client) => {
-        if (err) {
-          cb(err);
-        } else {
+        // unable to get database connection pass error to CB
+        if (err) cb(err);
+        // Successfully got our database connection
+        // Set database connection and call CB
+        else {
           state.db = client.db(dbname);
           cb();
         }
@@ -30,12 +34,14 @@ const connect = cb => {
   }
 };
 
+// returns OBJECTID object used to
 const getPrimaryKey = _id => {
   return ObjectID(_id);
 };
 
+// returns database connection
 const getDB = () => {
   return state.db;
 };
 
-module.exports = { getDB, getPrimaryKey, connect };
+module.exports = { getDB, connect, getPrimaryKey };
